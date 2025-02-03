@@ -31,9 +31,6 @@ AM_CFLAGS += -D_ANSC_LITTLE_ENDIAN_
 endif
 
 AM_LDFLAGS =  -L$(top_builddir)/../hal/lib
-if !HAL_IPC
-AM_LDFLAGS += -lhal_wifi
-endif
 AM_LDFLAGS += -lwebconfig_framework
 AM_LDFLAGS += -lsecure_wrapper
 AM_LDFLAGS += -lev

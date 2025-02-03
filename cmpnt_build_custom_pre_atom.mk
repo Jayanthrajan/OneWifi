@@ -44,5 +44,4 @@
 WIFI_BUILD_WIFI=1
 
 
-LDFLAGS += -lhal_wifi
 

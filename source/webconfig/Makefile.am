@@ -40,9 +40,6 @@ AM_LDFLAGS += -ldl
 AM_LDFLAGS += -ljansson
 AM_LDFLAGS += -lrt
 
-if !HAL_IPC
-AM_LDFLAGS += -lhal_wifi
-endif
 
 if ONEWIFI_DML_SUPPORT
 AM_LDFLAGS += -L$(top_builddir)/../CcspCommonLibrary/lib

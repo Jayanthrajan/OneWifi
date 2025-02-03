@@ -35,9 +35,6 @@ AM_CFLAGS += -Wno-poison-system-directories -Wall -Werror -Wextra -Wno-unused-pa
 AM_CPPFLAGS = -Wall -Werror
 AM_LDFLAGS = -L$(top_builddir)/../hal/lib
 AM_LDFLAGS += -lrdk_wifihal
-if !HAL_IPC
-AM_LDFLAGS += -lhal_wifi
-endif
 AM_CFLAGS += -DWBCFG_MULTI_COMP_SUPPORT
 
 ACLOCAL_AMFLAGS = -I m4
@@ -48,6 +45,3 @@ wifi_ctrl_CPPFLAGS += -I$(top_srcdir)/source/utils
 wifi_ctrl_CFLAGS = -Wno-attributes
 wifi_ctrl_SOURCES = wifi_ctrl.c ../db/wifi_ovsdb.c ../db/wifi_ovsdb_apis.c wifi_mgr.c
 wifi_ctrl_LDFLAGS = -lcjson -lev -lpthread -lrdk_wifihal
-if !HAL_IPC
-wifi_ctrl_LDFLAGS += -lhal_wifi
-endif

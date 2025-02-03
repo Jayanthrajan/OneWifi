@@ -32,9 +32,6 @@ endif
 
 AM_LDFLAGS =  -L$(top_builddir)/../hal/lib
 
-if !HAL_IPC
-AM_LDFLAGS += -lhal_wifi
-endif
 
 AM_LDFLAGS += -lwebconfig_framework
 AM_LDFLAGS += -lsecure_wrapper
@@ -70,9 +67,6 @@ libwifi_utils_la_LDFLAGS += -lccsp_common
 endif
 libwifi_utils_la_LDFLAGS += -lsyscfg -lprint_uptime -lsysevent -lrdk_wifihal
 
-if !HAL_IPC
-libwifi_utils_la_LDFLAGS += -lhal_wifi
-endif
 
 libwifi_utils_la_CPPFLAGS += -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ap -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/utils -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/drivers/ -I$(PKG_CONFIG_SYSROOT_DIR)$(includedir)/qca/qca-wifi/os/linux/include/ -I${PKG_CONFIG_SYSROOT_DIR}${libdir}/ -DEXTERNAL_USE_ONLY
 
