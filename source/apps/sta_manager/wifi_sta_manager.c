@@ -324,7 +324,7 @@ static int sta_mgr_handle_action_frame(wifi_app_t *apps, void *arg)
 int sta_mgr_hal_event_sta_mgr(wifi_app_t *apps, wifi_event_subtype_t sub_type, void *arg)
 {
     switch (sub_type) {
-    case wifi_event_hal_dpp_public_action_frame:
+    case wifi_event_hal_br_frame:
         sta_mgr_handle_action_frame(apps, arg);
         break;
     case wifi_event_hal_assoc_device:

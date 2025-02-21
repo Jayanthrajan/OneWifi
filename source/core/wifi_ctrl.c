@@ -1138,9 +1138,12 @@ int mgmt_wifi_frame_recv(int ap_index, mac_address_t sta_mac, uint8_t *frame, ui
 		mgmt_frame.frame.len = len;
 		evt_subtype = wifi_event_hal_reassoc_rsp_frame;
 	} else if (type == WIFI_MGMT_FRAME_TYPE_ACTION) {
-		memcpy(mgmt_frame.data, frame, len);
-		mgmt_frame.frame.len = len;
-		evt_subtype = wifi_event_hal_dpp_public_action_frame;
+		const struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)frame;
+		if (mgmt->u.action.u.rrm.action == WLAN_RRM_RADIO_MEASUREMENT_REPORT) {
+			memcpy(mgmt_frame.data, frame, len);
+			mgmt_frame.frame.len = len;
+			evt_subtype = wifi_event_hal_br_frame;
+		}
 		memset(&data, 0, sizeof(wifi_monitor_data_t));
         data.ap_index = ap_index;
         data.u.msg.frame.len = len;
