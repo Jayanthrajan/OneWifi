@@ -958,7 +958,6 @@ int process_maclist_timeout(void *arg)
     kick_details_t *kick = NULL;
     wifi_vap_info_t *vap_info = NULL;
     kick = (kick_details_t *)arg;
-    wifi_util_dbg_print(WIFI_CTRL, "%s:%d kick list is %s\n", __func__, __LINE__, kick->kick_list);
 
     vap_info = getVapInfo(kick->vap_index);
     if (vap_info == NULL) {
@@ -1064,7 +1063,6 @@ void kick_all_macs(int vap_index, int timeout, rdk_wifi_vap_info_t* rdk_vap_info
     //Code to kick all mac
     if (wifi_hal_kickAssociatedDevice(vap_index, kick_all) != RETURN_OK) {
         wifi_util_dbg_print(WIFI_CTRL, "%s:%d Failed to kick all mac from ap_index %d\n", __func__, __LINE__, vap_index);
-        return;
     }
 
     kick_details = (kick_details_t *)malloc(sizeof(kick_details_t));
