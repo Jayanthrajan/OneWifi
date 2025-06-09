@@ -1095,7 +1095,7 @@ int vap_svc_mesh_ext_update(vap_svc_t *svc, unsigned int radio_index, wifi_vap_i
             tgt_vap_map.vap_array[0].u.sta_info.enabled = true;
         }
 
-        if (wifi_hal_createVAP(radio_index, &tgt_vap_map) != RETURN_OK) {
+        if (wifi_createVAP(radio_index, &tgt_vap_map) != RETURN_OK) {
             wifi_util_error_print(WIFI_CTRL,"%s: wifi vap create failure: radio_index:%d vap_index:%d\n",__FUNCTION__,
                                                 radio_index, map->vap_array[i].vap_index);
             continue;
@@ -1449,7 +1449,7 @@ static int apply_pending_channel_change(vap_svc_t *svc, int vap_index)
 
     temp_radio_params.channel = ext->go_to_channel;
     temp_radio_params.channelWidth = ext->go_to_channel_width;
-    ret = wifi_hal_setRadioOperatingParameters(radio_index, &temp_radio_params);
+    ret = wifi_setRadioOperatingParameters(radio_index, &temp_radio_params);
     if (ret != RETURN_OK) {
         wifi_util_error_print(WIFI_CTRL, "%s:%d: failed to set channel %d for radio index: %d\n",
             __func__, __LINE__, radio_params->channel, radio_index);

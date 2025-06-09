@@ -105,7 +105,7 @@ static int wifi_radio_set_enable(bool status)
         memcpy(&temp_wifi_radio_oper_param, wifi_radio_oper_param, sizeof(wifi_radio_operationParam_t));
         temp_wifi_radio_oper_param.enable = status;
         wifi_util_dbg_print(WIFI_CTRL,"%s:%d index: %d radio enable status:%d\n", __func__, __LINE__, index, status);
-        ret = wifi_hal_setRadioOperatingParameters(index, &temp_wifi_radio_oper_param);
+        ret = wifi_setRadioOperatingParameters(index, &temp_wifi_radio_oper_param);
         if (ret != RETURN_OK) {
             wifi_util_error_print(WIFI_CTRL,"%s:%d wifi radio parameter set failure: radio_index:%d\n", __func__, __LINE__, index);
         } else {
@@ -511,7 +511,7 @@ int start_radios(rdk_dev_mode_type_t mode)
         if ((wifi_radio_oper_param->EcoPowerDown == false) && (wifi_prop->radio_presence[index] == false)) {
             wifi_util_error_print(WIFI_CTRL,"%s: !!!!-ALERT-!!!-Radio not present-!!!-Kernel driver interface down-!!!.Index %d\n",__FUNCTION__, index);
         }
-        ret = wifi_hal_setRadioOperatingParameters(index, wifi_radio_oper_param);
+        ret = wifi_setRadioOperatingParameters(index, wifi_radio_oper_param);
         if (ret != RETURN_OK) {
             wifi_util_error_print(WIFI_CTRL,"%s: wifi radio parameter set failure: radio_index:%d\n",__FUNCTION__, index);
             return ret;
@@ -623,11 +623,11 @@ void bus_get_vap_init_parameter(const char *name, unsigned int *ret_val)
         /* Initially assign this to em_node mode to start with */
         *ret_val = (unsigned int)rdk_dev_mode_type_em_node;
         while (colocated_mode == -1) {
-            /* sleep for 1 second and re-read the wifi_hal_getHalCapability till we get 
+            /* sleep for 1 second and re-read the wifi_getHalCapability till we get 
                a valid colocated_mode */
             sleep(1);
             total_slept++;
-            wifi_hal_getHalCapability(&((wifi_mgr_t *)get_wifimgr_obj())->hal_cap);
+            wifi_getHalCapability(&((wifi_mgr_t *)get_wifimgr_obj())->hal_cap);
             colocated_mode = ((wifi_mgr_t *)get_wifimgr_obj())->hal_cap.wifi_prop.colocated_mode;
         }
         if (colocated_mode == 1) {
@@ -1050,7 +1050,7 @@ int start_wifi_health_monitor_thread(void)
     return RETURN_OK;
 }
 
-int scan_results_callback(int radio_index, wifi_bss_info_t **bss, unsigned int *num)
+int scan_results_callback(unsigned int radio_index, wifi_bss_info_t **bss, unsigned int *num)
 {
     scan_results_t  res;
 
@@ -1556,10 +1556,10 @@ int init_wireless_interface_mac()
     for (itr=0; itr < getNumberRadios(); itr++) {
         memset(&hal_vap_info_map, 0, sizeof(hal_vap_info_map));
 
-        //wifi_hal_getRadioVapInfoMap is used  to get the macaddress of wireless interfaces
-        ret = wifi_hal_getRadioVapInfoMap(itr, &hal_vap_info_map);
+        //wifi_getRadioVapInfoMap is used  to get the macaddress of wireless interfaces
+        ret = wifi_getRadioVapInfoMap(itr, &hal_vap_info_map);
         if (ret != RETURN_OK) {
-            wifi_util_error_print(WIFI_CTRL,"RDK_LOG_ERROR, %s wifi_hal_getRadioVapInfoMap returned with error %d for radio : %d\n",
+            wifi_util_error_print(WIFI_CTRL,"RDK_LOG_ERROR, %s wifi_getRadioVapInfoMap returned with error %d for radio : %d\n",
                     __FUNCTION__, ret, itr);
             return RETURN_ERR;
         }
@@ -2075,7 +2075,7 @@ int sync_wifi_hal_hotspot_vap_mac_entry_with_db(void)
 
     acl_db_count  = hash_map_count(rdk_vap_info->acl_map);
 #ifdef NL80211_ACL
-    ret = wifi_hal_getApAclDeviceNum(vap_index, &acl_hal_count);
+    ret = wifi_getApAclDeviceNum(vap_index, &acl_hal_count);
 #else
     ret = wifi_getApAclDeviceNum(vap_index, &acl_hal_count);
 #endif
@@ -2097,7 +2097,7 @@ int sync_wifi_hal_hotspot_vap_mac_entry_with_db(void)
         to_mac_str(acl_device_mac, mac_str);
         wifi_util_dbg_print(WIFI_CTRL, "%s:%d: calling wifi_addApAclDevice for mac %s vap_index %d\n", __func__, __LINE__, mac_str, vap_index);
 #ifdef NL80211_ACL
-        if (wifi_hal_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
+        if (wifi_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
 #else
         if (wifi_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
 #endif
@@ -3220,7 +3220,7 @@ static int switch_dfs_channel(void *arg)
     wifi_util_info_print(WIFI_CTRL, "%s:%d Switching to dfs_chan:%d \n", __func__, __LINE__,
         dfs_channel_data->dfs_channel);
 
-    if (wifi_hal_setRadioOperatingParameters(dfs_channel_data->radio_index,
+    if (wifi_setRadioOperatingParameters(dfs_channel_data->radio_index,
             wifi_radio_oper_param)) {
         wifi_util_error_print(WIFI_CTRL, "%s:%d: setRadioOperating Parameters failed \n", __func__,
             __LINE__);

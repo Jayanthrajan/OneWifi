@@ -227,16 +227,16 @@ int start_wifi_ctrl(wifi_ctrl_t *ctrl, int argc, char *argv[])
         ovsdb_set_factory_reset_data(false);
     }
 
-    if (wifi_hal_init() != RETURN_OK) {
+    if (wifi_init() != RETURN_OK) {
         return -1;
     }
     
-    if (wifi_hal_getHalCapability(&g_hal_cap) != RETURN_OK) {
+    if (wifi_getHalCapability(&g_hal_cap) != RETURN_OK) {
         return -1;
     }
 
     ovsdb_get_radio_params(0, &radio_param); 
-    if (wifi_hal_setRadioOperatingParameters(0, &radio_param) != RETURN_OK) {
+    if (wifi_setRadioOperatingParameters(0, &radio_param) != RETURN_OK) {
         return 0;
     }
 
@@ -249,7 +249,7 @@ int start_wifi_ctrl(wifi_ctrl_t *ctrl, int argc, char *argv[])
     strcpy(map.vap_array[0].u.sta_info.security.u.key.key, password);
     strcpy(map.vap_array[0].u.sta_info.ssid, ssid);
 
-    wifi_hal_createVAP(0, &map);
+    wifi_createVAP(0, &map);
 
     for (i = 0; i < MAX_NUM_RADIOS; i++) {
 	if (wifi_hal_startScan(i, WIFI_RADIO_SCAN_MODE_ONCHAN, 0, 0, NULL) == RETURN_OK) {

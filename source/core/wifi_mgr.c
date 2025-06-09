@@ -97,14 +97,14 @@ int init_wifi_hal()
 
     wifi_util_info_print(WIFI_CTRL,"%s: start wifi hal init\n",__FUNCTION__);
 
-    ret = wifi_hal_init();
+    ret = wifi_init();
     if (ret != RETURN_OK) {
         wifi_util_error_print(WIFI_CTRL,"%s wifi_init failed:ret :%d\n",__FUNCTION__, ret);
         return RETURN_ERR;
     }
 
     /* Get the wifi capabilities from from hal*/
-    ret = wifi_hal_getHalCapability(&g_wifi_mgr.hal_cap);
+    ret = wifi_getHalCapability(&g_wifi_mgr.hal_cap);
     wifi_util_dbg_print(WIFI_MGR,"%s():%d: return:%d from wifi_hal_getHalCapability.\n", __func__, __LINE__, ret);
 
     if (ret != RETURN_OK) {

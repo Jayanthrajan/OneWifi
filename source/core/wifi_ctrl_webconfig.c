@@ -863,7 +863,7 @@ int webconfig_hal_vap_apply_by_name(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_
              * updated only from WifiDb callbacks (see update_fn).
              *
              * Problems:
-             * 1. memcpy would be executed even if wifi_hal_createVAP/webconfig_set_ow_core_vif_config failed
+             * 1. memcpy would be executed even if wifi_createVAP/webconfig_set_ow_core_vif_config failed
              * 2. MAC is updated by ow_core_update_vap_mac for XE2. Currently, schema_Wifi_VAP_Config doesn't have mac field
              * So, it won't be updated within update_fn -> wifidb_update_wifi_vap_info. Thats the reason why I leaved memcpy here. 
              */
@@ -1551,7 +1551,7 @@ int webconfig_hal_mac_filter_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_d
                         if ((new_config->acl_map == NULL) || (hash_map_get(new_config->acl_map, current_mac_str) == NULL)) {
                             wifi_util_info_print(WIFI_MGR, "%s:%d: calling wifi_delApAclDevice for mac %s vap_index %d\n", __func__, __LINE__, current_mac_str, current_config->vap_index);
 #ifdef NL80211_ACL
-			    if (wifi_hal_delApAclDevice(current_config->vap_index, current_mac_str) != RETURN_OK) {
+			    if (wifi_delApAclDevice(current_config->vap_index, current_mac_str) != RETURN_OK) {
 #else
                             if (wifi_delApAclDevice(current_config->vap_index, current_mac_str) != RETURN_OK) {
 #endif
@@ -1575,7 +1575,7 @@ int webconfig_hal_mac_filter_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_d
                 }
             } else {
 #ifdef NL80211_ACL
-                wifi_hal_delApAclDevices(vap_index);
+                wifi_delApAclDevices(vap_index);
 #else
 		wifi_delApAclDevices(vap_index);
 #endif
@@ -1591,7 +1591,7 @@ int webconfig_hal_mac_filter_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_d
                     if (check_acl_entry == NULL) { //mac is in new_config but not in running config need to update HAL
                         wifi_util_info_print(WIFI_MGR, "%s:%d: calling wifi_addApAclDevice for mac %s vap_index %d\n", __func__, __LINE__, new_mac_str, current_config->vap_index);
 #ifdef NL80211_ACL
-                        if (wifi_hal_addApAclDevice(current_config->vap_index, new_mac_str) != RETURN_OK) {
+                        if (wifi_addApAclDevice(current_config->vap_index, new_mac_str) != RETURN_OK) {
 #else
                         if (wifi_addApAclDevice(current_config->vap_index, new_mac_str) != RETURN_OK) {
 #endif
@@ -1817,7 +1817,7 @@ int webconfig_hal_radio_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t
                         start_wifi_sched_timer(mgr_radio_data->vaps.radio_index, ctrl, wifi_csa_sched);
                         ext_svc->event_fn(ext_svc, wifi_event_type_webconfig, wifi_event_webconfig_set_data, vap_svc_event_none, &radio_data->oper);
                         // driver does not change channel in STA connected state therefore skip
-                        // wifi_hal_setRadioOperatingParameters and update channel on disconnection/CSA
+                        // wifi_setRadioOperatingParameters and update channel on disconnection/CSA
                         continue;
                     }
                 }
@@ -1840,7 +1840,7 @@ int webconfig_hal_radio_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t
                 return RETURN_ERR;
             }
 
-            ret = wifi_hal_setRadioOperatingParameters(mgr_radio_data->vaps.radio_index, &radio_data->oper);
+            ret = wifi_setRadioOperatingParameters(mgr_radio_data->vaps.radio_index, &radio_data->oper);
 
             if (ret != RETURN_OK) {
                 wifi_util_error_print(WIFI_MGR, "%s:%d: failed to apply\n", __func__, __LINE__);
@@ -1990,7 +1990,7 @@ int webconfig_hal_single_radio_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded
                     ext_svc->event_fn(ext_svc, wifi_event_type_webconfig,
                         wifi_event_webconfig_set_data, vap_svc_event_none, &radio_data->oper);
                     // driver does not change channel in STA connected state therefore skip
-                    // wifi_hal_setRadioOperatingParameters and update channel on disconnection/CSA
+                    // wifi_setRadioOperatingParameters and update channel on disconnection/CSA
                     return RETURN_OK;
                 }
             }
@@ -2015,7 +2015,7 @@ int webconfig_hal_single_radio_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded
             return RETURN_ERR;
         }
 
-        ret = wifi_hal_setRadioOperatingParameters(mgr_radio_data->vaps.radio_index,
+        ret = wifi_setRadioOperatingParameters(mgr_radio_data->vaps.radio_index,
             &radio_data->oper);
 
         if (ret != RETURN_OK) {

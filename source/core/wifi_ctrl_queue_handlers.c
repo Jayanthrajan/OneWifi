@@ -111,7 +111,7 @@ int remove_xfinity_acl_entries(bool remove_all_greylist_entry,bool prefer_privat
 
                         to_mac_str(acl_entry->mac, mac_str);
 #ifdef NL80211_ACL
-                        ret = wifi_hal_delApAclDevice(l_rdk_vap_array->vap_index, mac_str);
+                        ret = wifi_delApAclDevice(l_rdk_vap_array->vap_index, mac_str);
 #else
                         ret = wifi_delApAclDevice(l_rdk_vap_array->vap_index, mac_str);
 #endif
@@ -982,7 +982,7 @@ int process_maclist_timeout(void *arg)
     while (str_str != NULL) {
         if ((rdk_vap_info->kick_device_config_change) && (!vap_info->u.bss_info.mac_filter_enable)){
 #ifdef NL80211_ACL
-            if (wifi_hal_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
+            if (wifi_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #else
             if (wifi_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #endif
@@ -992,7 +992,7 @@ int process_maclist_timeout(void *arg)
         } else {
             if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_black_list) {
 #ifdef NL80211_ACL
-                if (wifi_hal_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
+                if (wifi_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #else
                 if (wifi_delApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #endif
@@ -1001,7 +1001,7 @@ int process_maclist_timeout(void *arg)
                 }
             } else if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_white_list) {
 #ifdef NL80211_ACL
-                if (wifi_hal_addApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
+                if (wifi_addApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #else
 		if (wifi_addApAclDevice(kick->vap_index, str_str) != RETURN_OK) {
 #endif
@@ -1028,7 +1028,7 @@ int process_maclist_timeout(void *arg)
             filtermode  = 0;
         }
 #ifdef NL80211_ACL
-        if (wifi_hal_setApMacAddressControlMode(kick->vap_index, filtermode) != RETURN_OK)
+        if (wifi_setApMacAddressControlMode(kick->vap_index, filtermode) != RETURN_OK)
 #else
         if (wifi_setApMacAddressControlMode(kick->vap_index, filtermode) != RETURN_OK)
 #endif // NL80211_ACL
@@ -1098,7 +1098,7 @@ void kick_all_macs(int vap_index, int timeout, rdk_wifi_vap_info_t* rdk_vap_info
         to_mac_str(assoc_dev_data->dev_stats.cli_MACAddress, mac_str);
         if (rdk_vap_info->kick_device_config_change == TRUE) {
 #ifdef NL80211_ACL
-            if (wifi_hal_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
+            if (wifi_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #else
             if (wifi_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #endif
@@ -1108,7 +1108,7 @@ void kick_all_macs(int vap_index, int timeout, rdk_wifi_vap_info_t* rdk_vap_info
         } else {
             if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_black_list) {
 #ifdef NL80211_ACL
-                if (wifi_hal_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
+                if (wifi_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #else
                 if (wifi_addApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #endif
@@ -1117,7 +1117,7 @@ void kick_all_macs(int vap_index, int timeout, rdk_wifi_vap_info_t* rdk_vap_info
                 }
             } else if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_white_list) {
 #ifdef NL80211_ACL
-                if (wifi_hal_delApAclDevice(vap_index, mac_str) != RETURN_OK) {
+                if (wifi_delApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #else
                 if (wifi_delApAclDevice(vap_index, mac_str) != RETURN_OK) {
 #endif
@@ -1228,7 +1228,7 @@ void process_kick_assoc_devices_event(void *data)
 
     if (vap_info->u.bss_info.mac_filter_enable == FALSE) {
 #ifdef NL80211_ACL
-        if (wifi_hal_setApMacAddressControlMode(vap_index, 2) != RETURN_OK)
+        if (wifi_setApMacAddressControlMode(vap_index, 2) != RETURN_OK)
 #else
         if (wifi_setApMacAddressControlMode(vap_index, 2) != RETURN_OK)
 #endif // NL80211_ACL
@@ -1295,7 +1295,7 @@ void process_kick_assoc_devices_event(void *data)
 
             if (rdk_vap_info->kick_device_config_change == TRUE) {
 #ifdef NL80211_ACL
-                if (wifi_hal_addApAclDevice(vap_index, str_str) != RETURN_OK) {
+                if (wifi_addApAclDevice(vap_index, str_str) != RETURN_OK) {
 #else
                 if (wifi_addApAclDevice(vap_index, str_str) != RETURN_OK) {
 #endif
@@ -1305,7 +1305,7 @@ void process_kick_assoc_devices_event(void *data)
             } else {
                 if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_black_list) {
 #ifdef NL80211_ACL
-                    if (wifi_hal_addApAclDevice(vap_index, str_str) != RETURN_OK) {
+                    if (wifi_addApAclDevice(vap_index, str_str) != RETURN_OK) {
 #else
                     if (wifi_addApAclDevice(vap_index, str_str) != RETURN_OK) {
 #endif
@@ -1314,7 +1314,7 @@ void process_kick_assoc_devices_event(void *data)
                     }
                 } else if (vap_info->u.bss_info.mac_filter_mode == wifi_mac_filter_mode_white_list) {
 #ifdef NL80211_ACL
-                    if (wifi_hal_delApAclDevice(vap_index, str_str) != RETURN_OK) {
+                    if (wifi_delApAclDevice(vap_index, str_str) != RETURN_OK) {
 #else
                     if (wifi_delApAclDevice(vap_index, str_str) != RETURN_OK) {
 #endif
@@ -1426,7 +1426,7 @@ void process_greylist_mac_filter(void *data)
             acl_entry->expiry_time = expiry_time;
 
 #ifdef NL80211_ACL
-            if (wifi_hal_addApAclDevice(rdk_vap_info->vap_index, new_mac_str) != RETURN_OK) {
+            if (wifi_addApAclDevice(rdk_vap_info->vap_index, new_mac_str) != RETURN_OK) {
 #else
             if (wifi_addApAclDevice(rdk_vap_info->vap_index, new_mac_str) != RETURN_OK) {
 #endif
@@ -2020,7 +2020,7 @@ void process_dfs_rfc(bool type)
                 l_radio->radarInfo.timestamp = 0;
             }
             pthread_mutex_unlock(&g_wifidb->data_cache_lock);
-            ret = wifi_hal_setRadioOperatingParameters(rIdx, radio_params);
+            ret = wifi_setRadioOperatingParameters(rIdx, radio_params);
             if (ret != RETURN_OK) {
                 wifi_util_error_print(WIFI_CTRL,"%s: wifi radio parameter set failure\n",__FUNCTION__);
                 return;
@@ -2053,7 +2053,7 @@ void process_dfs_atbootup_rfc(bool type)
             pthread_mutex_lock(&g_wifidb->data_cache_lock);
             radio_params->DfsEnabledBootup = type;
             pthread_mutex_unlock(&g_wifidb->data_cache_lock);
-            ret = wifi_hal_setRadioOperatingParameters(rIdx, radio_params);
+            ret = wifi_setRadioOperatingParameters(rIdx, radio_params);
             if (ret != RETURN_OK) {
                 wifi_util_error_print(WIFI_CTRL,"%s: wifi radio parameter set failure\n",__FUNCTION__);
                 return;
@@ -2089,7 +2089,7 @@ int enable_wifi_radio_ax_mode(unsigned int radio_index, wifi_radio_operationPara
     }
     pthread_mutex_unlock(&g_wifidb->data_cache_lock);
 
-    ret = wifi_hal_setRadioOperatingParameters(radio_index, radio_params);
+    ret = wifi_setRadioOperatingParameters(radio_index, radio_params);
     if (ret != RETURN_OK) {
         wifi_util_error_print(WIFI_CTRL,"%s:%d wifi radio[%d] parameter set[%d] failure\n",__func__, __LINE__, radio_index, radio_params->variant);
         radio_params->variant = old_variant;
@@ -2221,7 +2221,7 @@ void process_wps_command_event(unsigned int vap_index)
 {
 #ifdef FEATURE_SUPPORT_WPS
     wifi_util_info_print(WIFI_CTRL,"%s:%d wifi wps test vap index = %d\n",__func__, __LINE__, vap_index);
-    wifi_hal_setApWpsButtonPush(vap_index);
+    wifi_setApWpsButtonPush(vap_index);
 #endif
 }
 
@@ -2432,7 +2432,7 @@ static int reset_radio_operating_parameters(void *args)
         return RETURN_ERR;
     }
 
-    ret = wifi_hal_setRadioOperatingParameters(radio_index, radio_params);
+    ret = wifi_setRadioOperatingParameters(radio_index, radio_params);
     if (ret != RETURN_OK) {
         wifi_util_error_print(WIFI_CTRL,"%s:%d: wifi radio parameter set failure: radio_index:%d\n",
             __FUNCTION__, __LINE__, radio_index);
@@ -2681,7 +2681,7 @@ void process_channel_change_event(wifi_channel_change_event_t *ch_chg, bool is_n
         if (wifi_radio_operationParam_validation(&g_wifidb->hal_cap, &temp_radio_params) != RETURN_OK) {
             wifi_util_error_print(WIFI_CTRL,"%s:%d: received invalid channel: %d bw: %d from driver on radio %d\n",
                 __FUNCTION__, __LINE__, ch_chg->channel, ch_chg->channelWidth, ch_chg->radioIndex);
-            ret = wifi_hal_setRadioOperatingParameters(ch_chg->radioIndex, radio_params);
+            ret = wifi_setRadioOperatingParameters(ch_chg->radioIndex, radio_params);
             if (ret != RETURN_OK) {
                 wifi_util_error_print(WIFI_CTRL,"%s:%d: wifi radio parameter set failure: radio_index:%d\n",
                     __FUNCTION__, __LINE__, ch_chg->radioIndex);

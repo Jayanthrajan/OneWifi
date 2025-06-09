@@ -2100,7 +2100,7 @@ static void send_ping_data(int ap_idx, unsigned char *mac, char *client_ip, char
         //send buffer
         if(frame_len) {
 #if (defined (_XB7_PRODUCT_REQ_) && !defined (_COSA_BCM_ARM_))
-            wifi_sendDataFrame(ap_idx,
+            wifi_hal_sendDataFrame(ap_idx,
                     (unsigned char*)mac,
                     (unsigned char*)buffer,
                     frame_len,
@@ -2122,7 +2122,7 @@ static void send_ping_data(int ap_idx, unsigned char *mac, char *client_ip, char
         //send buffer
         if(frame_len) {
 #if (defined (_XB7_PRODUCT_REQ_) && !defined (_COSA_BCM_ARM_))
-            wifi_sendDataFrame(ap_idx,
+            wifi_hal_sendDataFrame(ap_idx,
                     (unsigned char*)mac,
                     (unsigned char*)buffer,
                     frame_len,
@@ -3118,14 +3118,14 @@ int init_wifi_monitor()
     g_monitor_module.exit_monitor = false;
     /* Initializing the lock for active measurement g_active_msmt.lock */
 
-    wifi_hal_newApAssociatedDevice_callback_register(device_associated);
+    wifi_newApAssociatedDevice_callback_register(device_associated);
     wifi_vapstatus_callback_register(vapstatus_callback);
-    wifi_hal_apDeAuthEvent_callback_register(device_deauthenticated);
-    wifi_hal_apDisassociatedDevice_callback_register(device_disassociated);
+    wifi_apDeAuthEvent_callback_register(device_deauthenticated);
+    wifi_apDisassociatedDevice_callback_register(device_disassociated);
     wifi_hal_ap_max_client_rejection_callback_register(device_max_client_rejection);
     wifi_hal_radius_eap_failure_callback_register(radius_eap_failure_callback);
-    wifi_hal_radiusFallback_failover_callback_register(radius_fallback_and_failover_callback);
-    wifi_hal_stamode_callback_register(set_sta_client_mode);
+    wifi_hal_radius_eap_failure_callback_register(radius_fallback_and_failover_callback);
+    wifi_hal_radius_eap_failure_callback_register(set_sta_client_mode);
     scheduler_add_timer_task(g_monitor_module.sched, FALSE, NULL, refresh_assoc_frame_entry, NULL, (MAX_ASSOC_FRAME_REFRESH_PERIOD * 1000), 0, FALSE);
     scheduler_add_timer_task(g_monitor_module.sched, FALSE, NULL, reset_wpa3_enhanced_sta_data, NULL, (MAX_AKM_REPORT_REFRESH_PERIOD * 1000), 0, FALSE);
     wifi_util_dbg_print(WIFI_MON, "%s:%d Wi-Fi monitor is initialized successfully\n", __func__, __LINE__);

@@ -38,12 +38,12 @@ struct hal_api_info {
     {"wifi_getRadioOperatingParameters",    1, "<radio index>"},
     {"wifi_createVAP",                      2, "<radio index> <json file path>"},
     {"wifi_getRadioVapInfoMap",             1, "<radio index>"},
-    {"wifi_connect",                        1, "<ap index> [bssid] [ssid] [frequency]"},
-    {"wifi_disconnect",                     1, "<ap index>"},
+    {"wifi_hal_connect",                        1, "<ap index> [bssid] [ssid] [frequency]"},
+    {"wifi_hal_disconnect",                     1, "<ap index>"},
     {"wifi_getStationCapability",           1, "<ap index>"},
     {"wifi_getScanResults",                 1, "<ap index> [channel]"},
     {"wifi_getStationStats",                1, "<ap index>"},
-    {"wifi_startScan",                      1, "<radio index>"},
+    {"wifi_hal_startScan",                      1, "<radio index>"},
     {"wifi_startNeighborScan",              3, "<vap index> <scan mode> <dwell time> [channels]"},
     {"wifi_getNeighboringWiFiStatus",       1, "<radio index"},
     {"wifi_setBTMRequest",                  3, "<vap index> <client mac> <candidate mac>"},
@@ -341,7 +341,7 @@ static void wifiapi_handle_start_neighbor_scan(char **args, unsigned int num_arg
         chan_num++;
     }
 
-    if (wifi_hal_startNeighborScan(vap_index, scan_mode, dwell_time, chan_num,
+    if (wifi_startNeighborScan(vap_index, scan_mode, dwell_time, chan_num,
         channels) != RETURN_OK) {
         snprintf(result_buf, result_buf_size, "Failed to start neighbor scan\n");
         return;
@@ -359,7 +359,7 @@ static void wifiapi_handle_neighbor_scan_status(char **args, unsigned int num_ar
 
     radio_index = atoi(args[1]);
 
-    if (wifi_hal_getNeighboringWiFiStatus(radio_index, &neighbor_ap_array,
+    if (wifi_getNeighboringWiFiStatus(radio_index, &neighbor_ap_array,
         &output_array_size) != RETURN_OK) {
         snprintf(result_buf, result_buf_size, "Failed to get neighbor scan results\n");
         return;
@@ -412,7 +412,7 @@ static void wifiapi_handle_set_btm_request(char **args, unsigned int num_args,
     btm_request->numCandidates = 1;
     memcpy(&btm_request->candidates[0].bssid, &candidate_mac, sizeof(mac_address_t));
 
-    if (wifi_hal_setBTMRequest(vap_index, client_mac, btm_request) != WIFI_HAL_SUCCESS) {
+    if (wifi_setBTMRequest(vap_index, (char *)client_mac, btm_request) != WIFI_HAL_SUCCESS) {
         snprintf(result_buf, result_buf_size, "Failed to send BTM request\n");
         free(btm_request);
         return;
@@ -436,7 +436,7 @@ static void wifiapi_handle_set_rm_beacon_request(char **args, unsigned int num_a
 
     memcpy(&beacon_req.bssid, &bssid, sizeof(mac_address_t));
 
-    if (wifi_hal_setRMBeaconRequest(vap_index, peer_mac, &beacon_req,
+    if (wifi_setRMBeaconRequest(vap_index, (char *)peer_mac, &beacon_req,
         &diag_token) != WIFI_HAL_SUCCESS) {
         snprintf(result_buf, result_buf_size, "Failed to send RM beacon request\n");
         return;
@@ -460,7 +460,7 @@ static void wifiapi_handle_set_neighbor_reports(char **args, unsigned int num_ar
 
     memcpy(&neighbor_report.bssid, &bssid, sizeof(mac_address_t));
 
-    if (wifi_hal_setNeighborReports(vap_index, num_neigbor_reports,
+    if (wifi_setNeighborReports(vap_index, num_neigbor_reports,
         &neighbor_report) != WIFI_HAL_SUCCESS) {
         snprintf(result_buf, result_buf_size, "Failed to set neighbor report\n");
         return;
@@ -766,9 +766,9 @@ void process_wifiapi_command(char *command, unsigned int len)
         }
         //validation and check for changes?
         //call hal_api
-        ret = wifi_hal_setRadioOperatingParameters(radio_index, &(data.u.decoded.radios[radio_index].oper));
+        ret = wifi_setRadioOperatingParameters(radio_index, &(data.u.decoded.radios[radio_index].oper));
         if (ret != RETURN_OK) {
-            sprintf(buff, "%s: wifi_hal_setRadioOperatingParameters failed", args[0]);
+            sprintf(buff, "%s: wifi_setRadioOperatingParameters failed", args[0]);
             goto publish;
         }
         //update db/global memory
@@ -787,9 +787,9 @@ void process_wifiapi_command(char *command, unsigned int len)
             goto publish;
         }
         //call hal_api
-        //ret = wifi_hal_getRadioOperatingParameters(radio_index, &data.u.decoded.radios[radio_index]);
+        //ret = wifi_getRadioOperatingParameters(radio_index, &data.u.decoded.radios[radio_index]);
         //if (ret != RETURN_OK) {
-        //    sprintf(buff, "%s: wifi_hal_getRadioOperatingParameters failed", args[0]);
+        //    sprintf(buff, "%s: wifi_getRadioOperatingParameters failed", args[0]);
         //}
         //update result
         //wifiapi_printradioconfig(buff, sizeof(buff), &(data.u.decoded.radios[radio_index].oper));
@@ -846,8 +846,8 @@ void process_wifiapi_command(char *command, unsigned int len)
             goto publish;
         }
         //call hal_api
-        if (wifi_hal_createVAP(radio_index, vap_map) != RETURN_OK) {
-            sprintf(buff, "%s: wifi_hal_createVAP failed", args[0]);
+        if (wifi_createVAP(radio_index, vap_map) != RETURN_OK) {
+            sprintf(buff, "%s: wifi_createVAP failed", args[0]);
             goto publish;
         }
 
@@ -880,7 +880,7 @@ void process_wifiapi_command(char *command, unsigned int len)
         
         //update result
         wifiapi_printvapconfig(buff, sizeof(buff), &(mgr->radio_config[radio_index].vaps.vap_map));
-    } else if (strcmp(args[0], "wifi_connect")==0) {
+    } else if (strcmp(args[0], "wifi_hal_connect")==0) {
         wifi_bss_info_t bss;
         //check vap_index
         vap_index = strtol(args[1], NULL, 10);
@@ -912,7 +912,7 @@ void process_wifiapi_command(char *command, unsigned int len)
             }
         }
         sprintf(buff, "%s: OK", args[0]);
-    } else if (strcmp(args[0], "wifi_disconnect")==0) {
+    } else if (strcmp(args[0], "wifi_hal_disconnect")==0) {
         //check vap_index
         vap_index = strtol(args[1], NULL, 10);
         if (vap_index >= mgr->hal_cap.wifi_prop.numRadios*MAX_NUM_VAP_PER_RADIO) {
@@ -948,7 +948,7 @@ void process_wifiapi_command(char *command, unsigned int len)
         wifiapi_printbssinfo(buff, sizeof(buff), bss, num_bss);
         
     } else if (strcmp(args[0], "wifi_getStationStats")==0) {
-    } else if (strcmp(args[0], "wifi_startScan")==0) {
+    } else if (strcmp(args[0], "wifi_hal_startScan")==0) {
         //check radio_index
         radio_index = strtol(args[1], NULL, 10);
         if (radio_index > getNumberRadios()-1) {

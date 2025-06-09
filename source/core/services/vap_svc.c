@@ -124,7 +124,7 @@ int update_acl_entries(wifi_vap_info_map_t *tgt_vap_map)
     for (i = 0; i < tgt_vap_map->num_vaps; i++) {
         vap_index = tgt_vap_map->vap_array[i].vap_index;
 #ifdef NL80211_ACL
-        wifi_hal_delApAclDevices(vap_index);
+        wifi_delApAclDevices(vap_index);
 #else
         wifi_delApAclDevices(vap_index);
 #endif
@@ -141,7 +141,7 @@ int update_acl_entries(wifi_vap_info_map_t *tgt_vap_map)
                 to_mac_str(acl_device_mac, mac_str);
                 wifi_util_dbg_print(WIFI_CTRL, "%s:%d: calling wifi_addApAclDevice for mac %s vap_index %d\n", __func__, __LINE__, mac_str, vap_index);
 #ifdef NL80211_ACL
-                if (wifi_hal_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
+                if (wifi_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
 #else
                 if (wifi_addApAclDevice(vap_index, (CHAR *) mac_str) != RETURN_OK) {
 #endif
@@ -269,7 +269,7 @@ int vap_svc_start_stop(vap_svc_t *svc, bool enable)
             tgt_vap_map->num_vaps++;
         }
 
-        if (wifi_hal_createVAP(i, tgt_vap_map) != RETURN_OK) {
+        if (wifi_createVAP(i, tgt_vap_map) != RETURN_OK) {
             wifi_util_error_print(WIFI_CTRL,"%s: wifi vap create failure: radio_index:%d\n",__FUNCTION__, i);
             free(tgt_vap_map);
             return -1;
