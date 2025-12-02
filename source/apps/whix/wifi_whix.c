@@ -49,7 +49,7 @@
 #endif
 
 #define CHAN_UTIL_INTERVAL_MS 900000 // 15 mins
-#define TELEMETRY_UPDATE_INTERVAL_MS 3600000 // 1 hour
+#define TELEMETRY_UPDATE_INTERVAL_MS 5*60*1000 // 5 minutes
 #define CAPTURE_VAP_STATUS_INTERVAL_MS 5*60*1000 // 5 minutes
 #define RADIO_DIAG_STATS_INTERVAL_MS 30000 // 30 seconds
 #define WIFI_CHANUTIL_PROVIDER_DELAY_SEC 5 // 5 seconds
@@ -1142,6 +1142,12 @@ int upload_client_telemetry_data(wifi_app_t *app, unsigned int num_devs, unsigne
         return RETURN_ERR;
     }
 
+    if (access("/tmp/return_diag", F_OK) == 0) {
+		wifi_util_error_print(WIFI_APPS, "%s:%d Returning \n", __func__, __LINE__);
+		return RETURN_OK;
+	}
+
+	wifi_util_error_print(WIFI_APPS, "%s:%d Not Returning \n", __func__, __LINE__);
     vap_info = getVapInfo(vap_index);
     if (vap_info == NULL) {
         wifi_util_error_print(WIFI_CTRL, "%s:%d NULL rdk_vap_info pointer\n", __func__, __LINE__);

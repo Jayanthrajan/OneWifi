@@ -37,11 +37,17 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #define  ARRAY_SZ(x)    (sizeof(x) / sizeof((x)[0]))
 /* enable PID in debug logs */
 #define __ENABLE_PID__     0
 
+pid_t gettid(void)
+{
+    return (pid_t)syscall(SYS_gettid);
+}
 /* local helper functions */
 static wifi_interface_name_idex_map_t* get_vap_index_property(wifi_platform_property_t *wifi_prop, unsigned int vap_index, const char *func);
 static wifi_interface_name_idex_map_t* get_vap_name_property(wifi_platform_property_t *wifi_prop, char *vap_name, const char *func);
