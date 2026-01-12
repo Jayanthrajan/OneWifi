@@ -344,45 +344,65 @@ void onewifi_ovsdb_update_monitor_process(ovsdb_update_monitor_t *self, json_t *
             continue;
         }
 
-        do
-        {
-            /*
-             * The UUID is an array, where the first element is the "uuid" string and the second element
-             * is the actual uuid.
-             */
-            if (json_array_append_new(juuid, json_string("uuid")) != 0)
-            {
-                LOG(ERR, "UPDATE: Error appending string \"uuid\"");
-                break;
-            }
+        bool success = true;
+        json_t *juuid_str = NULL;
+        json_t *juuid_val = NULL;
 
-            if (json_array_append_new(juuid, json_string(self->mon_uuid)) != 0)
+        /*
+         * The UUID is an array, where the first element is the "uuid" string and the second element
+         * is the actual uuid.
+         */
+        juuid_str = json_string("uuid");
+        if (juuid_str == NULL)
+        {
+            LOG(ERR, "UPDATE: Error creating string \"uuid\"");
+            success = false;
+        }
+        else if (json_array_append_new(juuid, juuid_str) != 0)
+        {
+            LOG(ERR, "UPDATE: Error appending string \"uuid\"");
+            json_decref(juuid_str);
+            success = false;
+        }
+
+        if (success)
+        {
+            juuid_val = json_string(self->mon_uuid);
+            if (juuid_val == NULL)
+            {
+                LOG(ERR, "UPDATE: Error creating UUID string.");
+                success = false;
+            }
+            else if (json_array_append_new(juuid, juuid_val) != 0)
             {
                 LOG(ERR, "UPDATE: Error appending UUID.");
-                break;
+                json_decref(juuid_val);
+                success = false;
             }
+        }
 
-            if (self->mon_json_new != NULL)
+        if (success && self->mon_json_new != NULL)
+        {
+            if (json_object_set(self->mon_json_new, "_uuid", juuid) != 0)
             {
-                if (json_object_set(self->mon_json_new, "_uuid", juuid) != 0)
-                {
-                    LOG(ERR, "UPDATE: Error appending UUID to NEW.");
-                    break;
-                }
+                LOG(ERR, "UPDATE: Error appending UUID to NEW.");
+                success = false;
             }
+        }
 
-            if (self->mon_json_old != NULL)
+        if (success && self->mon_json_old != NULL)
+        {
+            if (json_object_set(self->mon_json_old, "_uuid", juuid) != 0)
             {
-                if (json_object_set(self->mon_json_old, "_uuid", juuid) != 0)
-                {
-                    LOG(ERR, "UPDATE: Error appending UUID to OLD.");
-                    break;
-                }
+                LOG(ERR, "UPDATE: Error appending UUID to OLD.");
+                success = false;
             }
+        }
 
+        if (success)
+        {
             self->mon_cb(self);
         }
-        while (false);
 
         json_decref(juuid);
     }

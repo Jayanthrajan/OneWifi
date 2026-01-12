@@ -313,27 +313,40 @@ json_t *onewifi_ovsdb_method_send_s(const char *ovsdb_sock_path,
 
         default:
             LOG(ERR, "unknown method");
-            json_decref(jparams);
-            return false;
+            if (jparams) json_decref(jparams);
+            return NULL;
     }
 
     js = json_object();
+    if (js == NULL)
+    {
+        LOGE("Error creating JSON object");
+        if (jparams) json_decref(jparams);
+        return NULL;
+    }
 
     if (0 < json_object_set_new(js, "method", json_string(method)))
     {
         LOGE("Error adding method key.");
+        json_decref(js);
+        if (jparams) json_decref(jparams);
+        return NULL;
     }
 
     if (0 < json_object_set_new(js, "params", jparams))
     {
         LOGE("Error adding params array.");
-        json_decref(jparams);
+        json_decref(js);
+        if (jparams) json_decref(jparams);
+        return NULL;
     }
 
     rpc_id = onewifi_ovsdb_jsonrpc_id_new();
     if (0 < json_object_set_new(js, "id", json_integer(rpc_id)))
     {
         LOGE("Error adding id key.");
+        json_decref(js);
+        return NULL;
     }
 
     jres = ovsdb_write_s((char *)ovsdb_sock_path, js);
@@ -420,7 +433,7 @@ bool onewifi_ovsdb_insert_with_parent_s(const char *ovsdb_sock_path,
 
     json_t *resp = onewifi_ovsdb_method_send_s(ovsdb_sock_path, MT_TRANS, tran);
 
-    json_decref(resp);
+    if (resp) json_decref(resp);
     return true;
 }
 
@@ -448,18 +461,24 @@ json_t* onewifi_ovsdb_delete_with_parent_res_s(const char *ovsdb_sock_path,
 
     result = onewifi_ovsdb_tran_call_s(ovsdb_sock_path, table, OTR_SELECT, where, NULL);
     if (!result) {
-        json_decref(parent_where);
-        return false;
+        if (parent_where) json_decref(parent_where);
+        return NULL;
     }
 
     rows = json_object_get(json_array_get(result, 0), "rows");
     if (!rows || json_array_size(rows) < 1) {
         json_decref(result);
-        json_decref(parent_where);
-        return false;
+        if (parent_where) json_decref(parent_where);
+        return NULL;
     }
 
     uuids = json_array();
+    if (!uuids) {
+        json_decref(result);
+        if (parent_where) json_decref(parent_where);
+        return NULL;
+    }
+
     json_array_foreach(rows, index, row) {
         if (!(uuid = json_object_get(row, "_uuid"))) {
             continue;
@@ -470,7 +489,7 @@ json_t* onewifi_ovsdb_delete_with_parent_res_s(const char *ovsdb_sock_path,
     json_decref(result);
 
     tran = onewifi_ovsdb_tran_delete_with_parent(ovsdb_sock_path,
-										table,
+								table,
                                          uuids,
                                          parent_table,
                                          parent_where,
@@ -480,8 +499,6 @@ json_t* onewifi_ovsdb_delete_with_parent_res_s(const char *ovsdb_sock_path,
 
     return resp;
 }
-
-
 bool onewifi_ovsdb_delete_with_parent_s(const char *ovsdb_sock_path,
 								char * table,
                                 json_t *where,
@@ -494,6 +511,6 @@ bool onewifi_ovsdb_delete_with_parent_s(const char *ovsdb_sock_path,
     resp = onewifi_ovsdb_delete_with_parent_res_s(ovsdb_sock_path, table,
             where, parent_table, parent_where, parent_column);
 
-    json_decref(resp);
+    if (resp) json_decref(resp);
     return true;
 }

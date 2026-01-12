@@ -282,7 +282,9 @@ json_t* onewifi_ovsdb_sync_select_where(const char *ovsdb_sock_path, const char 
 json_t* onewifi_ovsdb_sync_select(const char *ovsdb_sock_path, const char *table, const char *column, const char *value)
 {
     json_t *where = onewifi_ovsdb_where_simple(column, value);
-    return onewifi_ovsdb_sync_select_where(ovsdb_sock_path, table, where);
+    json_t *result = onewifi_ovsdb_sync_select_where(ovsdb_sock_path, table, where);
+    // where is consumed by onewifi_ovsdb_sync_select_where (via onewifi_ovsdb_tran_call_s)
+    return result;
 }
 
 // 'where' should match a single row.
@@ -328,7 +330,7 @@ int ovsdb_sync_get_uuid_and_count(const char *ovsdb_sock_path, const char *table
             table, where_str, count, str_uuid);
 out:
     STRSCPY(uuid->uuid, str_uuid ? str_uuid : "");
-    json_decref(jrows);
+    if (jrows) json_decref(jrows);
     return count;
 }
 
@@ -342,7 +344,9 @@ bool ovsdb_sync_get_uuid_where(const char *ovsdb_sock_path, const char *table, j
 bool ovsdb_sync_get_uuid(const char *ovsdb_sock_path, const char *table, const char *column, const char *value, ovs_uuid_t *uuid)
 {
     json_t *where = onewifi_ovsdb_where_simple(column, value);
-    return ovsdb_sync_get_uuid_where(ovsdb_sock_path, table, where, uuid);
+    bool result = ovsdb_sync_get_uuid_where(ovsdb_sock_path, table, where, uuid);
+    // where is consumed by ovsdb_sync_get_uuid_where (via ovsdb_sync_get_uuid_and_count)
+    return result;
 }
 
 // INSERT
@@ -411,7 +415,9 @@ int onewifi_ovsdb_sync_update_where(const char *ovsdb_sock_path, const char *tab
 int onewifi_ovsdb_sync_update(const char *ovsdb_sock_path, const char *table, const char *column, const char *value, json_t *row)
 {
     json_t *where = onewifi_ovsdb_where_simple(column, value);
-    return onewifi_ovsdb_sync_update_where(ovsdb_sock_path, table, where, row);
+    int result = onewifi_ovsdb_sync_update_where(ovsdb_sock_path, table, where, row);
+    // where is consumed by onewifi_ovsdb_sync_update_where (via onewifi_ovsdb_tran_call_s)
+    return result;
 }
 
 // 'where' should match a single row.
@@ -474,7 +480,9 @@ bool onewifi_ovsdb_sync_upsert(const char *ovsdb_sock_path, const char *table, c
 {
     if (!row) return false;
     json_t *where = onewifi_ovsdb_where_simple(column, value);
-    return onewifi_ovsdb_sync_upsert_where(ovsdb_sock_path, table, where, row, uuid);
+    bool result = onewifi_ovsdb_sync_upsert_where(ovsdb_sock_path, table, where, row, uuid);
+    // where is consumed by onewifi_ovsdb_sync_upsert_where
+    return result;
 }
 
 

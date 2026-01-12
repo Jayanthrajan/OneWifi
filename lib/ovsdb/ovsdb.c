@@ -363,8 +363,14 @@ int onewifi_ovsdb_unregister_update_cb(int mon_id)
     struct rpc_update_handler *rh;
 
     rh = ds_tree_find(&json_rpc_update_handler_list, &mon_id);
+    if (rh == NULL)
+    {
+        LOG(WARNING, "JSON RPC: Update handler not found for mon_id=%d", mon_id);
+        return -1;
+    }
 
     ds_tree_remove(&json_rpc_update_handler_list, rh);
+    free(rh);
 
     return 0;
 }

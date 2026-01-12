@@ -75,7 +75,12 @@ schema2str_set(size_t elem_size, size_t nelems,
     return set;
 
 err_free_array_items:
-    for (i = 0; i < nelems; i++) free(array[i]);
+    /* Only free the items that were successfully allocated */
+    while (i > 0)
+    {
+        i--;
+        free(array[i]);
+    }
     free(set);
 
 err_free_array:
@@ -195,7 +200,10 @@ schema2tree(size_t key_size, size_t value_size, size_t nelems,
         value = values[i];
         pair = get_pair(key, value);
         loop = (pair != NULL);
-        ds_tree_insert(tree, pair, pair->key);
+        if (loop)
+        {
+            ds_tree_insert(tree, pair, pair->key);
+        }
         i++;
         loop &= (i < nelems);
     } while (loop);
@@ -372,7 +380,10 @@ schema2itree(size_t elem_size, size_t nelems,
         value = values[i];
         pair = get_ipair(key, value);
         loop = (pair != NULL);
-        ds_tree_insert(tree, pair, pair->key);
+        if (loop)
+        {
+            ds_tree_insert(tree, pair, pair->key);
+        }
         i++;
         loop &= (i < nelems);
     } while (loop);

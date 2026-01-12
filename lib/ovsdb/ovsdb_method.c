@@ -235,6 +235,8 @@ error:
     {
         /* On errors, free the rh structure */
         if (rh != NULL) free(rh);
+        /* Free the json object as caller expects it to be consumed */
+        if (js != NULL) json_decref(js);
     }
 
     return retval;
@@ -299,29 +301,45 @@ bool onewifi_ovsdb_method_send(int ovsdb_fd,
 
         default:
             LOG(ERR, "unknown method");
+            if (jparams != NULL) json_decref(jparams);
             return false;
     }
 
     js = json_object();
+    if (js == NULL)
+    {
+        LOG(ERR, "Failed to create JSON object");
+        if (jparams != NULL) json_decref(jparams);
+        return false;
+    }
 
     if (0 < json_object_set_new(js, "method", json_string(method)))
     {
         LOG(ERR, "Error adding method key.");
+        if (js != NULL) json_decref(js);
+        if (jparams != NULL) json_decref(jparams);
+        return false;
     }
 
     if (0 < json_object_set_new(js, "params", jparams))
     {
         LOG(ERR, "Error adding params array.");
+        if (js != NULL) json_decref(js);
+        if (jparams != NULL) json_decref(jparams);
+        return false;
     }
 
     if (0 < json_object_set_new(js, "id", json_integer(onewifi_ovsdb_jsonrpc_id_new())))
     {
         LOG(ERR, "Error adding id key.");
+        if (js != NULL) json_decref(js);
+        return false;
     }
 
     retval = ovsdb_write(ovsdb_fd, callback, data, js);
 
-    if (js != NULL) json_decref(js);
+    /* ovsdb_write consumes js on error path now, only decref on success */
+    if (retval && js != NULL) json_decref(js);
 
     return retval;
 }
@@ -405,22 +423,63 @@ bool onewifi_ovsdb_monit_call_argv(int ovsdb_fd,
     bool retval = false;
 
     jparams = json_array();
+    if (jparams == NULL)
+    {
+        LOG(ERR, "Failed to create jparams array");
+        return false;
+    }
 
     /* add default DB name */
-    json_array_append_new(jparams, json_string(OVSDB_DEF_DB));
+    if (json_array_append_new(jparams, json_string(OVSDB_DEF_DB)) != 0)
+    {
+        LOG(ERR, "Failed to append DB name");
+        json_decref(jparams);
+        return false;
+    }
 
     /* Second  parameter is user defined string, this if first
      * argument in variable list of arguments*/
-    json_array_append_new(jparams, json_integer(monid));
+    if (json_array_append_new(jparams, json_integer(monid)) != 0)
+    {
+        LOG(ERR, "Failed to append monid");
+        json_decref(jparams);
+        return false;
+    }
 
     jtbl = json_object();
+    if (jtbl == NULL)
+    {
+        LOG(ERR, "Failed to create jtbl object");
+        json_decref(jparams);
+        return false;
+    }
 
     jtblval = ovsdb_mon_tbl_val(mon_flags, argc, argv);
+    if (jtblval == NULL)
+    {
+        LOG(ERR, "Failed to create jtblval");
+        json_decref(jtbl);
+        json_decref(jparams);
+        return false;
+    }
 
-    json_object_set_new(jtbl, table, jtblval);
+    if (json_object_set_new(jtbl, table, jtblval) != 0)
+    {
+        LOG(ERR, "Failed to set table in jtbl");
+        json_decref(jtblval);
+        json_decref(jtbl);
+        json_decref(jparams);
+        return false;
+    }
 
     /* Third parameter is table name */
-    json_array_append_new(jparams, jtbl);
+    if (json_array_append_new(jparams, jtbl) != 0)
+    {
+        LOG(ERR, "Failed to append jtbl");
+        json_decref(jtbl);
+        json_decref(jparams);
+        return false;
+    }
 
     retval = onewifi_ovsdb_method_send(ovsdb_fd, callback, data, MT_MONITOR, jparams);
 
@@ -829,11 +888,13 @@ bool onewifi_ovsdb_tran_comment(json_t *js_array, ovsdb_tro_t oper, json_t *wher
 
     if (json_object_set_new(js, "comment", json_string(comment)) != 0)
     {
+        LOG(ERR, "Failed to set comment in json object");
         goto error;
     }
 
     if (json_array_append_new(js_array, js) != 0)
     {
+        LOG(ERR, "Failed to append comment to json array");
         goto error;
     }
 
