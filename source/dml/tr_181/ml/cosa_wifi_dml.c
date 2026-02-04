@@ -9181,8 +9181,7 @@ Security_SetParamStringValue
         /* GET the WPA3 Transition RFC value */
         CosaWiFiDmlGetWPA3TransitionRFC(&WPA3_RFC);
         if (radioOperation->band != WIFI_FREQUENCY_6_BAND && WPA3_RFC == FALSE &&
-            (TmpMode == wifi_security_mode_wpa3_transition ||
-            TmpMode == wifi_security_mode_wpa3_personal))
+            (TmpMode == wifi_security_mode_wpa3_transition))
         {
              wifi_util_error_print(WIFI_DMCLI, "%s:%d WPA3 mode is not supported when "
                  "TransitionDisable RFC is false\n", __func__, __LINE__);
