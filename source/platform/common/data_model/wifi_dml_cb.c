@@ -2776,8 +2776,7 @@ bool security_set_param_string_value(void *obj_ins_context, char *param_name, sc
         /* GET the WPA3 Transition RFC value */
         wifi_rfc_dml_parameters_t *rfc_pcfg = (wifi_rfc_dml_parameters_t *)get_wifi_db_rfc_parameters();
         if (p_dm_radio_param->band != WIFI_FREQUENCY_6_BAND && rfc_pcfg->wpa3_rfc == false &&
-            (l_tmp_sec_mode == wifi_security_mode_wpa3_transition ||
-            l_tmp_sec_mode == wifi_security_mode_wpa3_personal)) {
+            (l_tmp_sec_mode == wifi_security_mode_wpa3_transition)) {
              wifi_util_error_print(WIFI_DMCLI, "%s:%d WPA3 mode is not supported when "
                  "TransitionDisable RFC is false\n", __func__, __LINE__);
              return false;
